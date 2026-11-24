@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'">
+  <title>Sketchfab · 采集进度</title>
+  <link rel="stylesheet" href="./panel.css">
+  <script defer src="./panel.js"></script>
+</head>
+<body data-view="public">
+<main>
+  <header class="head">
+    <div>
+      <div id="view-label" class="eyebrow">采集面板 · 只读</div>
+      <h1>Sketchfab 采集进度</h1>
+      <p>官方下载、公开预览与账号池状态。每小时更新。</p>
+    </div>
+    <div class="head-meta">
+      <span id="job" class="badge">正在获取作业状态</span>
+      <button id="reload" type="button">读取最新快照 <span aria-hidden="true">↻</span></button>
+    </div>
+  </header>
+  <div class="timestamp">
+    <span id="updated">正在连接监控快照…</span>
+    <span id="next">北京时间 · 每整点采样</span>
+  </div>
+  <p class="alert" id="warning" role="status" hidden></p>
+  <noscript><p class="alert">启用 JavaScript 后可查看最新汇总。</p></noscript>
+  <div id="content" hidden>
+    <section class="metrics" aria-label="采集概要">
+      <article class="card kpi official">
+        <h2>官方归档 · 近 60 分钟</h2>
+        <div id="official-num" class="value">—</div>
+        <p id="official-detail"></p>
+      </article>
+      <article class="card kpi preview">
+        <h2>抓取 · 近 60 分钟</h2>
+        <div id="preview-num" class="value">—</div>
+        <p id="preview-detail"></p>
+        <p id="preview-speed"></p>
+      </article>
+      <article class="card kpi">
+        <h2>可识别 Mesh · 本次累计</h2>
+        <div id="total-num" class="value">—</div>
+        <p id="total-detail"></p>
+      </article>
+      <article class="card kpi cooling">
+        <h2>账号池 · 429 冷却</h2>
+        <div id="cooldown-num" class="value">—</div>
+        <p id="cooldown-detail"></p>
+      </article>
+    </section>
+    <div class="layout">
+      <section class="card chart-card" aria-labelledby="chart-title">
+        <div class="section-head">
+          <div><h2 id="chart-title">过去 24 小时</h2><p>按整小时分组 · 单位：个</p></div>
+          <div class="switch" role="group" aria-label="选择趋势指标">
+            <button id="official-chart" aria-pressed="true" type="button">官方归档</button>
+            <button id="preview-chart" aria-pressed="false" type="button">抓取</button>
+          </div>
+        </div>
+        <div class="plot" id="plot" aria-label="可选择小时查看数值"></div>
+        <div class="axis" id="axis" aria-hidden="true"></div>
+        <div class="legend" id="legend" aria-hidden="true"></div>
+        <p class="chart-detail" id="chart-detail" aria-live="polite"></p>
+      </section>
+      <section class="card account" aria-labelledby="account-title">
+        <div class="section-head"><div><h2 id="account-title">账号池冷却</h2><p id="pool-observed"></p></div></div>
+        <dl>
+          <div class="internal"><dt>429 单账号等到</dt><dd id="local-429"></dd></div>
+          <div><dt>平台指定等待中</dt><dd id="provider-429"></dd></div>
+          <div><dt>429 全池等待</dt><dd id="global-429"></dd></div>
+          <div class="internal"><dt>就绪 / 使用中 / 禁用</dt><dd id="pool-status"></dd></div>
+          <div><dt>近 60 分钟 HTTP 429</dt><dd id="recent-429"></dd></div>
+        </dl>
+        <p class="small">普通请求间隔不计为 429。这里只显示采样时状态，不代表实时可用。</p>
+      </section>
+    </div>
+    <section class="card diagnose internal" aria-labelledby="diag-title">
+      <div class="section-head"><div><h2 id="diag-title">瓶颈线索</h2><p>队列看采样瞬间，错误看近 60 分钟。一次重试不是一个新资产。</p></div></div>
+      <div class="diagnose-grid">
+        <div><h3>官方 · 候选 / 归档</h3><p id="official-work"></p><p id="official-issues"></p><p id="official-latency"></p></div>
+        <div><h3>抓取 · 处理 / 验收</h3><p id="preview-work"></p><p id="preview-issues"></p><p id="preview-quality"></p></div>
+      </div>
+    </section>
+    <footer>
+      <p>抓取总数 = 完整 + 部分。同一统计窗口内，同一模型如果既有部分产物又有完整产物，只归到完整。</p>
+      <p>Mesh 只计有可识别模型文件的官方归档和验收通过的完整预览，跨来源去重。部分不计入 Mesh；累计不是全库库存。速度按落盘字节计算，不是网络带宽。</p>
+    </footer>
+  </div>
+</main>
+</body>
+</html>

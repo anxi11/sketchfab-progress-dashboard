@@ -7,8 +7,8 @@
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'">
   <title>Sketchfab · 采集进度</title>
-  <link rel="stylesheet" href="./panel.css">
-  <script defer src="./panel.js"></script>
+  <link rel="stylesheet" href="./panel.css?v=range-20261125">
+  <script defer src="./panel.js?v=range-20261125"></script>
 </head>
 <body data-view="public">
 <main>
@@ -30,33 +30,57 @@
   <p class="alert" id="warning" role="status" hidden></p>
   <noscript><p class="alert">启用 JavaScript 后可查看最新汇总。</p></noscript>
   <div id="content" hidden>
+    <section class="range-panel" aria-labelledby="range-title">
+      <div class="range-summary">
+        <h2 id="range-title">统计时段</h2>
+        <p id="range-window" aria-live="polite"></p>
+        <p id="range-mode"></p>
+      </div>
+      <div class="range-controls" id="range-controls">
+        <div class="range-presets" role="group" aria-label="常用统计时段">
+          <button type="button" data-hours="1" aria-pressed="true">1 小时</button>
+          <button type="button" data-hours="3" aria-pressed="false">3 小时</button>
+          <button type="button" data-hours="6" aria-pressed="false">6 小时</button>
+          <button type="button" data-hours="12" aria-pressed="false">12 小时</button>
+          <button type="button" data-hours="24" aria-pressed="false">24 小时</button>
+        </div>
+        <form id="range-form" class="range-custom">
+          <label for="range-input">自定义</label>
+          <input id="range-input" name="hours" type="number" inputmode="numeric" min="1" max="24" step="1" value="1" required aria-describedby="range-format">
+          <span id="range-format">小时</span>
+          <button type="submit">应用</button>
+        </form>
+      </div>
+    </section>
+    <p class="alert range-note" id="range-note" role="status" hidden></p>
     <section class="metrics" aria-label="采集概要">
       <article class="card kpi official">
-        <h2>官方归档 · 近 60 分钟</h2>
+        <h2 id="official-title">官方归档</h2>
         <div id="official-num" class="value">—</div>
         <p id="official-detail"></p>
       </article>
       <article class="card kpi preview">
-        <h2>抓取 · 近 60 分钟</h2>
+        <h2 id="preview-title">抓取</h2>
         <div id="preview-num" class="value">—</div>
         <p id="preview-detail"></p>
         <p id="preview-speed"></p>
+      </article>
+      <article class="card kpi storage">
+        <h2 id="storage-title">合计落盘</h2>
+        <div id="storage-num" class="value">—</div>
+        <p id="storage-detail"></p>
+        <p class="muted">仅计已核验的归档和抓取主文件</p>
       </article>
       <article class="card kpi">
         <h2>可识别 Mesh · 本次累计</h2>
         <div id="total-num" class="value">—</div>
         <p id="total-detail"></p>
       </article>
-      <article class="card kpi cooling">
-        <h2>账号池 · 429 冷却</h2>
-        <div id="cooldown-num" class="value">—</div>
-        <p id="cooldown-detail"></p>
-      </article>
     </section>
     <div class="layout">
       <section class="card chart-card" aria-labelledby="chart-title">
         <div class="section-head">
-          <div><h2 id="chart-title">过去 24 小时</h2><p>按整小时分组 · 单位：个</p></div>
+          <div><h2 id="chart-title">过去 24 小时</h2><p id="chart-subtitle">每柱 1 小时 · 单位：个</p></div>
           <div class="switch" role="group" aria-label="选择趋势指标">
             <button id="official-chart" aria-pressed="true" type="button">官方归档</button>
             <button id="preview-chart" aria-pressed="false" type="button">抓取</button>
@@ -68,7 +92,10 @@
         <p class="chart-detail" id="chart-detail" aria-live="polite"></p>
       </section>
       <section class="card account" aria-labelledby="account-title">
-        <div class="section-head"><div><h2 id="account-title">账号池冷却</h2><p id="pool-observed"></p></div></div>
+        <div class="section-head"><div><h2 id="account-title">账号池 · 429 冷却</h2><p id="pool-observed"></p></div></div>
+        <div class="account-summary">
+          <span id="cooldown-num" class="account-value">—</span><span id="cooldown-detail"></span>
+        </div>
         <dl>
           <div class="internal"><dt>429 单账号等到</dt><dd id="local-429"></dd></div>
           <div><dt>平台指定等待中</dt><dd id="provider-429"></dd></div>
@@ -87,8 +114,9 @@
       </div>
     </section>
     <footer>
-      <p>抓取总数 = 完整 + 部分。同一统计窗口内，同一模型如果既有部分产物又有完整产物，只归到完整。</p>
-      <p>Mesh 只计有可识别模型文件的官方归档和验收通过的完整预览，跨来源去重。部分不计入 Mesh；累计不是全库库存。速度按落盘字节计算，不是网络带宽。</p>
+      <p id="capture-count-rule">抓取总数 = 完整 + 部分。</p>
+      <p>Mesh 只计有可识别模型文件的官方归档和验收通过的完整预览，跨来源去重。部分不计入 Mesh；本次累计不受时段选择影响。</p>
+      <p>落盘按产物文件大小计：官方归档 + 完整与部分抓取的主 GLB。不含解压副本、缓存与临时文件，不是整个磁盘的实际占用。1 GB = 10 亿字节。</p>
     </footer>
   </div>
 </main>
